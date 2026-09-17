@@ -1,0 +1,19 @@
+{
+  "name": "metroview",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mobile-first OSM metro/subway network viewer",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "leaflet.markercluster": "^1.5.3"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
