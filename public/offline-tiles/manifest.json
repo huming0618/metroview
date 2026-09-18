@@ -217,6 +217,7 @@
   "provider": "Carto Positron (light_all) + OpenStreetMap data",
   "pathTemplate": "offline-tiles/{z}/{x}/{y}.png",
   "onDiskPngCount": 2089,
-  "onDiskBytes": 37335171,
-  "onDiskMB": 35.61
+  "onDiskBytes": 40161274,
+  "onDiskMB": 38.3,
+  "stubTilesRefetched": 0
 }
