@@ -4,6 +4,13 @@ import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import './style.css';
+import {
+  createCachedTileLayer,
+  prefetchTiles,
+  isOnline,
+  countCachedTilesApprox,
+  warmCacheFromBundled,
+} from './tileCache.js';
 
 const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
@@ -31,7 +38,11 @@ let metros = [];
 let selected = null;
 /** @type {AbortController|null} */
 let overpassAbort = null;
+/** @type {import('leaflet').TileLayer|null} */
+let baseTiles = null;
 let colorIdx = 0;
+let offlineTileWarned = false;
+let prefetching = false;
 
 const el = {
   input: document.getElementById('search-input'),
@@ -44,6 +55,8 @@ const el = {
   codes: document.getElementById('sheet-codes'),
   btnFit: document.getElementById('btn-fit'),
   btnWorld: document.getElementById('btn-world'),
+  btnCache: document.getElementById('btn-cache'),
+  offlineBanner: document.getElementById('offline-banner'),
 };
 
 function showStatus(text) {
@@ -56,6 +69,17 @@ function showStatus(text) {
   el.status.textContent = text;
 }
 
+function updateOfflineBanner() {
+  if (!el.offlineBanner) return;
+  if (!isOnline()) {
+    el.offlineBanner.hidden = false;
+    el.offlineBanner.textContent =
+      '常用城市已内置离线底图；其他城市可联网缓存';
+  } else {
+    el.offlineBanner.hidden = true;
+  }
+}
+
 function initMap() {
   map = L.map('map', {
     zoomControl: false,
@@ -65,10 +89,17 @@ function initMap() {
 
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  }).addTo(map);
+  baseTiles = createCachedTileLayer(L);
+  baseTiles.addTo(map);
+  baseTiles.on('tileoffline', () => {
+    if (offlineTileWarned) return;
+    offlineTileWarned = true;
+    showStatus('请先联网缓存该城市周边地图');
+    setTimeout(() => {
+      showStatus('');
+      offlineTileWarned = false;
+    }, 3500);
+  });
 
   cluster = L.markerClusterGroup({
     maxClusterRadius: 50,
@@ -79,6 +110,18 @@ function initMap() {
   map.addLayer(cluster);
 
   routeLayer = L.layerGroup().addTo(map);
+
+  window.addEventListener('online', () => {
+    updateOfflineBanner();
+    showStatus('网络已恢复');
+    setTimeout(() => showStatus(''), 1500);
+  });
+  window.addEventListener('offline', () => {
+    updateOfflineBanner();
+    showStatus('已进入离线模式');
+    setTimeout(() => showStatus(''), 2000);
+  });
+  updateOfflineBanner();
 }
 
 function displayName(m) {
@@ -186,6 +229,10 @@ function openSheet(m) {
   el.meta.textContent = [cityLabel(m), m.country].filter(Boolean).join(' · ');
   el.codes.textContent = typeLabel(m.type);
   el.sheet.hidden = false;
+  if (el.btnCache) {
+    el.btnCache.disabled = prefetching;
+    el.btnCache.hidden = false;
+  }
   setTimeout(() => map.invalidateSize(), 50);
 }
 
@@ -262,7 +309,6 @@ function osmElementsToLines(elements) {
     }
   }
 
-  // Standalone subway ways (if few/no relations)
   if (lines.length < 5) {
     for (const el of elements) {
       if (el.type !== 'way') continue;
@@ -357,9 +403,9 @@ function applyFit(bounds) {
 }
 
 /**
- * Fit strategy:
- * 1) baked bbox (immediate one-screen fit)
- * 2) Overpass subway geometry → draw colored routes → refit
+ * Fit strategy (offline-first):
+ * 1) baked bbox (immediate one-screen fit) — works offline
+ * 2) Overpass subway geometry only when online
  * 3) city-center fallback already covered by localBounds
  */
 async function fitMetro(m) {
@@ -373,6 +419,12 @@ async function fitMetro(m) {
   const baked = localBounds(m);
   applyFit(baked);
 
+  if (!isOnline()) {
+    showStatus('离线：已按本地范围适配');
+    setTimeout(() => showStatus(''), 2200);
+    return;
+  }
+
   showStatus('正在加载 OSM 地铁线网…');
   try {
     const elements = await queryOverpass(m, signal);
@@ -381,7 +433,6 @@ async function fitMetro(m) {
       drawRoutes(lines);
       const geoBounds = boundsFromLines(lines);
       if (geoBounds) {
-        // Prefer geometry bounds, but don't zoom out wildly beyond baked bbox
         applyFit(geoBounds);
         showStatus(`已绘制 ${lines.length} 段线路`);
       } else {
@@ -397,6 +448,38 @@ async function fitMetro(m) {
   }
 
   setTimeout(() => showStatus(''), 2500);
+}
+
+async function cacheSelectedMetro() {
+  if (!selected || prefetching) return;
+  if (!isOnline()) {
+    showStatus('请先联网缓存该城市周边地图');
+    setTimeout(() => showStatus(''), 2500);
+    return;
+  }
+  prefetching = true;
+  if (el.btnCache) el.btnCache.disabled = true;
+  const bounds = localBounds(selected).pad(0.05);
+  showStatus('正在缓存离线地图… 0%');
+  try {
+    const result = await prefetchTiles(bounds, 12, 16, ({ done, total }) => {
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      showStatus(`正在缓存离线地图… ${pct}%`);
+    });
+    const n = await countCachedTilesApprox();
+    showStatus(
+      `已缓存 ${result.ok}/${result.total} 瓦片（库内约 ${n}）${
+        result.truncated ? '（已限流截断）' : ''
+      }`,
+    );
+  } catch (err) {
+    console.warn(err);
+    showStatus('缓存失败：' + (err.message || '未知错误'));
+  } finally {
+    prefetching = false;
+    if (el.btnCache) el.btnCache.disabled = false;
+    setTimeout(() => showStatus(''), 3500);
+  }
 }
 
 function selectMetro(m, { fit = true } = {}) {
@@ -453,6 +536,10 @@ function wireUi() {
 
   el.btnWorld.addEventListener('click', goWorld);
 
+  if (el.btnCache) {
+    el.btnCache.addEventListener('click', () => cacheSelectedMetro());
+  }
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       el.results.hidden = true;
@@ -489,6 +576,7 @@ function applyDeepLink() {
     hits.find((m) => m.nameZh === q) ||
     hits.find((m) => (m.city || '').toLowerCase() === lower) ||
     hits.find((m) => (m.name || '').toLowerCase() === lower) ||
+    hits.find((m) => m.id === lower) ||
     hits[0];
 
   selectMetro(exact, { fit: true });
@@ -510,6 +598,7 @@ async function main() {
   try {
     await loadData();
     addMarkers();
+    warmCacheFromBundled().catch(() => {});
     requestAnimationFrame(() => {
       applyDeepLink();
     });

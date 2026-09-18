@@ -5,3 +5,12 @@ dist/
 .env
 .env.*
 tmp/
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/
+android/capacitor-cordova-android-plugins/build/
+*.apk
+*.aab
+*.keystore

@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 
-// GitHub Pages project site: https://huming0618.github.io/metroview/
+// GitHub Pages: /metroview/; Capacitor / offline: VITE_BASE=./
 export default defineConfig({
   base: process.env.VITE_BASE || '/metroview/',
   server: {

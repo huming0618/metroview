@@ -1,0 +1,222 @@
+{
+  "generatedAt": "2026-09-18T21:04:02.317735Z",
+  "zoom": {
+    "min": 12,
+    "max": 15
+  },
+  "seedHalfSpan": {
+    "lat": 0.05,
+    "lon": 0.06
+  },
+  "note": "seedBbox is center-capped city core for pack size; app fit uses full metro bbox",
+  "metros": [
+    {
+      "id": "cn-chengdu",
+      "cityZh": "成都",
+      "city": "Chengdu",
+      "name": "Chengdu Metro",
+      "nameZh": "成都地铁",
+      "fullBbox": [
+        30.45,
+        103.85,
+        30.9,
+        104.4
+      ],
+      "seedBbox": [
+        30.5228,
+        104.0068,
+        30.6228,
+        104.1268
+      ],
+      "tileCount": 208
+    },
+    {
+      "id": "cn-shanghai",
+      "cityZh": "上海",
+      "city": "Shanghai",
+      "name": "Shanghai Metro",
+      "nameZh": "上海地铁",
+      "fullBbox": [
+        30.9,
+        121.05,
+        31.5,
+        121.9
+      ],
+      "seedBbox": [
+        31.1804,
+        121.41369999999999,
+        31.2804,
+        121.5337
+      ],
+      "tileCount": 215
+    },
+    {
+      "id": "cn-beijing",
+      "cityZh": "北京",
+      "city": "Beijing",
+      "name": "Beijing Subway",
+      "nameZh": "北京地铁",
+      "fullBbox": [
+        39.7,
+        116.05,
+        40.2,
+        116.8
+      ],
+      "seedBbox": [
+        39.854200000000006,
+        116.3474,
+        39.9542,
+        116.4674
+      ],
+      "tileCount": 220
+    },
+    {
+      "id": "cn-guangzhou",
+      "cityZh": "广州",
+      "city": "Guangzhou",
+      "name": "Guangzhou Metro",
+      "nameZh": "广州地铁",
+      "fullBbox": [
+        22.9,
+        113.05,
+        23.45,
+        113.65
+      ],
+      "seedBbox": [
+        23.0791,
+        113.20439999999999,
+        23.179100000000002,
+        113.3244
+      ],
+      "tileCount": 186
+    },
+    {
+      "id": "cn-shenzhen",
+      "cityZh": "深圳",
+      "city": "Shenzhen",
+      "name": "Shenzhen Metro",
+      "nameZh": "深圳地铁",
+      "fullBbox": [
+        22.45,
+        113.8,
+        22.85,
+        114.4
+      ],
+      "seedBbox": [
+        22.4931,
+        113.9979,
+        22.5931,
+        114.1179
+      ],
+      "tileCount": 163
+    },
+    {
+      "id": "cn-hongkong",
+      "cityZh": "香港",
+      "city": "Hong Kong",
+      "name": "Hong Kong MTR",
+      "nameZh": "香港地铁",
+      "fullBbox": [
+        22.2,
+        113.85,
+        22.55,
+        114.4
+      ],
+      "seedBbox": [
+        22.269299999999998,
+        114.1094,
+        22.3693,
+        114.2294
+      ],
+      "tileCount": 166
+    },
+    {
+      "id": "jp-tokyo-metro",
+      "cityZh": "东京",
+      "city": "Tokyo",
+      "name": "Tokyo Metro",
+      "nameZh": "东京地铁",
+      "fullBbox": [
+        35.55,
+        139.55,
+        35.85,
+        139.95
+      ],
+      "seedBbox": [
+        35.6312,
+        139.7071,
+        35.731199999999994,
+        139.8271
+      ],
+      "tileCount": 202
+    },
+    {
+      "id": "gb-london",
+      "cityZh": "伦敦",
+      "city": "London",
+      "name": "London Underground",
+      "nameZh": "伦敦地铁",
+      "fullBbox": [
+        51.35,
+        -0.55,
+        51.7,
+        0.25
+      ],
+      "seedBbox": [
+        51.4574,
+        -0.1878,
+        51.557399999999994,
+        -0.0678
+      ],
+      "tileCount": 262
+    },
+    {
+      "id": "fr-paris",
+      "cityZh": "巴黎",
+      "city": "Paris",
+      "name": "Paris Métro",
+      "nameZh": "巴黎地铁",
+      "fullBbox": [
+        48.8,
+        2.2,
+        48.92,
+        2.48
+      ],
+      "seedBbox": [
+        48.8066,
+        2.2922,
+        48.9066,
+        2.4122
+      ],
+      "tileCount": 249
+    },
+    {
+      "id": "us-nyc",
+      "cityZh": "纽约",
+      "city": "New York",
+      "name": "New York City Subway",
+      "nameZh": "纽约地铁",
+      "fullBbox": [
+        40.55,
+        -74.1,
+        40.92,
+        -73.7
+      ],
+      "seedBbox": [
+        40.662800000000004,
+        -74.066,
+        40.7628,
+        -73.946
+      ],
+      "tileCount": 218
+    }
+  ],
+  "uniqueRequested": 2089,
+  "trimmedFromLargerPack": true,
+  "attribution": "Map tiles © OpenStreetMap contributors (ODbL) and/or © CARTO (Positron). Bundled for offline Metro View demo only.",
+  "provider": "Carto Positron (light_all) + OpenStreetMap data",
+  "pathTemplate": "offline-tiles/{z}/{x}/{y}.png",
+  "onDiskPngCount": 2089,
+  "onDiskBytes": 37335171,
+  "onDiskMB": 35.61
+}

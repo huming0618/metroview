@@ -280,3 +280,30 @@ body,
   color: #fff;
   font-weight: 700;
 }
+
+.offline-banner {
+  position: absolute;
+  top: calc(58px + var(--safe-top));
+  left: 12px;
+  right: 12px;
+  z-index: 1100;
+  background: rgba(180, 83, 9, 0.92);
+  color: #fff7ed;
+  font-size: 13px;
+  line-height: 1.35;
+  padding: 8px 12px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+  text-align: center;
+}
+
+.btn.accent {
+  background: #0ea5e9;
+  color: #04131c;
+  border: none;
+}
+
+.btn.accent:disabled {
+  opacity: 0.55;
+}
